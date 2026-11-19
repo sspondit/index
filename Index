@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Beta & Gamma Functions: Wizard's Class Note</title>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]}};</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+  body{margin:0;font-family:Segoe UI,Arial,sans-serif;background:#0b0b1a;color:#f1eaff}
+  nav{position:sticky;top:0;z-index:5;display:flex;gap:8px;justify-content:center;padding:8px;background:#111;border-bottom:1px solid #333}
+  nav a{color:#fff;text-decoration:none;padding:7px 16px;border-radius:8px;font-size:14px;background:#333}
+  nav a:hover{background:#555}
+  .intro{text-align:center;padding:16px 10px 4px}
+  .intro h1{margin:0;font-size:26px}.intro p{margin:4px 0 0;color:#bbb}
+  .part{--bg:#120a2a;--hd1:#3b1a78;--hd2:#6a2fb0;--sub:#d9c8ff;--card:#1e1442;--bd:#4a3290;--btn:#8f4bff;--btn2:#a66dff;--step:#271a55;--cv:#0d0720;--ro:#bff;--note:#bbb;--ax:#8a7ac0;--axt:#cdbfff;--curve:#ff7bd5;
+        margin-top:18px;background:var(--bg);scroll-margin-top:50px}
+  .part.p2{--bg:#07162b;--hd1:#0b3d78;--hd2:#1a7fa8;--sub:#cfeaff;--card:#0e2442;--bd:#2b5c94;--btn:#1e90d6;--btn2:#4ab0f0;--step:#12335c;--cv:#050d1c;--ro:#9fe;--note:#9ab;--ax:#7fa6d0;--axt:#bcd8f5;--curve:#4fd8ff}
+  .part header{text-align:center;padding:18px 10px;background:linear-gradient(90deg,var(--hd1),var(--hd2))}
+  .part header h2{margin:0;font-size:26px;color:#fff}.part header p{margin:4px 0 0;color:var(--sub)}
+  .wrap{max-width:1100px;margin:auto;padding:14px}
+  .card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin:12px 0}
+  .row{display:flex;flex-wrap:wrap;gap:12px}.row>div{flex:1 1 380px}
+  canvas{width:100%;background:var(--cv);border-radius:10px}
+  button{background:var(--btn);color:#fff;border:0;padding:9px 16px;border-radius:8px;font-size:15px;cursor:pointer;margin:4px 4px 4px 0}
+  button:hover{background:var(--btn2)}
+  .step{display:none;opacity:0;transform:translateY(10px);transition:all .6s;border-left:4px solid #ffd54f;padding:6px 12px;margin:10px 0;background:var(--step);border-radius:6px}
+  .step.show{display:block;opacity:1;transform:none}
+  h3{color:#ffd54f;margin-top:0;font-size:19px}
+  .readout{font-size:15px;color:var(--ro)}.note{color:var(--note);font-size:13px}
+  .bar{height:16px;background:#1b2f4d;border-radius:8px;overflow:hidden}
+  .bar div{height:100%;width:0;background:linear-gradient(90deg,#27d,#7ff)}
+</style>
+</head>
+<body>
+<nav><a href="#part1">🧪 Part 1: Potion</a><a href="#part2">🛡️ Part 2: Shield</a></nav>
+<div class="intro"><h1>Beta & Gamma Functions</h1><p>B.Tech 1st Year Class Note · Two worked examples</p></div>
+
+<!-- ============ PART 1 ============ -->
+<section class="part p1" id="part1">
+<header><h2>🧪 Part 1: The Magic Potion Lab</h2><p>Integer parameters: \(B(3,4)\)</p></header>
+<div class="wrap">
+<div class="card"><h3>Theory Recap</h3>
+  <p>Gamma function: \(\Gamma(n)=\int_0^\infty x^{n-1}e^{-x}\,dx\), with \(\Gamma(n+1)=n\,\Gamma(n)\) and \(\Gamma(n)=(n-1)!\) for positive integers \(n\).</p>
+  <p>Beta function: \(B(m,n)=\int_0^1 t^{m-1}(1-t)^{n-1}\,dt=\dfrac{\Gamma(m)\Gamma(n)}{\Gamma(m+n)}\), for \(m,n>0\).</p></div>
+<div class="card"><h3>The Problem</h3>
+  <p>A wizard prepares a magical energy potion. The energy absorbed at time \(t\) is
+  \[E(t)=K\,t^{2}(1-t)^{3},\qquad 0\le t\le 1.\]
+  The total energy absorbed is proportional to \(\displaystyle\int_0^1 t^2(1-t)^3\,dt\).
+  <br><b>Question:</b> Find the total energy factor using the Beta function.</p></div>
+<div class="card"><h3>Live Animation</h3>
+  <div><button id="p1-play">▶ Brew</button><button id="p1-reset">↺ Reset</button>
+  <label>Speed <input type="range" id="p1-speed" min="0.3" max="3" step="0.1" value="1"></label></div>
+  <div class="row"><div><canvas id="p1-graph" width="560" height="360"></canvas></div>
+  <div><canvas id="p1-flask" width="560" height="360"></canvas></div></div>
+  <p class="readout" id="p1-readout"></p>
+  <p class="note">Left: the energy curve \(E(t)/K\) and the area collected so far. Right: the potion level equals (area so far) ÷ (total area). It fills completely at \(t=1\), when the area is \(1/60\).</p></div>
+<div class="card steps"><h3>Step-by-Step Solution</h3>
+  <button class="next">Reveal next step ➜</button><button class="all">Show all</button><button class="hide">Hide</button>
+  <div class="step"><b>Step 1: Match with the Beta form.</b>
+    \[\int_0^1 t^{2}(1-t)^{3}\,dt=\int_0^1 t^{m-1}(1-t)^{n-1}\,dt\]
+    So \(m-1=2\Rightarrow m=3\) and \(n-1=3\Rightarrow n=4\).</div>
+  <div class="step"><b>Step 2: Write as a Beta function.</b> \[\int_0^1 t^2(1-t)^3\,dt=B(3,4)\]</div>
+  <div class="step"><b>Step 3: Convert to Gamma functions.</b> \[B(3,4)=\frac{\Gamma(3)\,\Gamma(4)}{\Gamma(7)}\]</div>
+  <div class="step"><b>Step 4: Use \(\Gamma(n)=(n-1)!\).</b> \[\Gamma(3)=2!=2,\quad \Gamma(4)=3!=6,\quad \Gamma(7)=6!=720\]</div>
+  <div class="step"><b>Step 5: Evaluate.</b> \[B(3,4)=\frac{2\cdot 6}{720}=\frac{12}{720}=\frac1{60}\]</div>
+  <div class="step"><b>Answer:</b> The magical energy factor is \[\boxed{\dfrac{1}{60}}\approx 0.01667\] so the total energy is \(E_{\text{total}}=\dfrac{K}{60}\).</div></div>
+<div class="card"><h3>Try It Yourself</h3><ol>
+  <li>Find \(\int_0^1 t^{3}(1-t)^{2}\,dt\). Why is the answer the same as \(B(3,4)\)? (Hint: \(B(m,n)=B(n,m)\).)</li>
+  <li>At what \(t\) is \(E(t)\) maximum? (Answer: \(t=0.4\).)</li>
+  <li>Evaluate \(\int_0^1 t^4(1-t)^2\,dt\). (Answer: \(1/105\).)</li></ol></div>
+</div>
+</section>
+
+<!-- ============ PART 2 ============ -->
+<section class="part p2" id="part2">
+<header><h2>🛡️ Part 2: The Wizard's Protective Shield</h2><p>Fractional parameters: \(B(5/2,3)\)</p></header>
+<div class="wrap">
+<div class="card"><h3>Theory Recap</h3>
+  <p>Gamma function: \(\Gamma(n)=\int_0^\infty x^{n-1}e^{-x}\,dx\), with \(\Gamma(n+1)=n\Gamma(n)\) and \(\Gamma\!\left(\tfrac12\right)=\sqrt{\pi}\).</p>
+  <p>Beta function: \(B(m,n)=\int_0^1 x^{m-1}(1-x)^{n-1}dx=\dfrac{\Gamma(m)\Gamma(n)}{\Gamma(m+n)}\), for \(m,n>0\).</p></div>
+<div class="card"><h3>The Problem</h3>
+  <p>A wizard designs a shield around his castle. The strength at normalized distance \(x\in[0,1]\) is
+  \[S(x)=K\,x^{3/2}(1-x)^{2}.\]
+  The total shielding effect is proportional to \(\displaystyle I=\int_0^1 x^{3/2}(1-x)^2\,dx\).
+  <br><b>Question:</b> Find \(I\) using the Beta and Gamma functions.</p></div>
+<div class="card"><h3>Live Animation</h3>
+  <button id="p2-play">▶ Cast Shield</button><button id="p2-reset">↺ Reset</button>
+  <label>Speed <input type="range" id="p2-speed" min="0.3" max="3" step="0.1" value="1"></label>
+  <div class="row"><div><canvas id="p2-graph" width="560" height="360"></canvas></div>
+  <div><canvas id="p2-castle" width="560" height="360"></canvas></div></div>
+  <p>Shielding collected: <span id="p2-pct"></span></p>
+  <div class="bar"><div id="p2-fill"></div></div>
+  <p class="readout" id="p2-readout"></p>
+  <p class="note">Left: the curve \(S(x)/K\) with the area gathered so far. Right: the shield spreads outward from the castle, and each ring's glow is proportional to \(S(x)\). When \(x=1\), the area equals \(I=16/315\).</p></div>
+<div class="card steps"><h3>Step-by-Step Solution</h3>
+  <button class="next">Reveal next step ➜</button><button class="all">Show all</button><button class="hide">Hide</button>
+  <div class="step"><b>Step 1: Compare with the Beta form.</b> \[x^{3/2}=x^{5/2-1},\qquad (1-x)^2=(1-x)^{3-1}\] So \(m=\tfrac52\) and \(n=3\).</div>
+  <div class="step"><b>Step 2: Write as a Beta function.</b> \[I=B\!\left(\tfrac52,3\right)\]</div>
+  <div class="step"><b>Step 3: Convert to Gamma functions.</b> \[I=\frac{\Gamma(5/2)\,\Gamma(3)}{\Gamma(11/2)}\]</div>
+  <div class="step"><b>Step 4: Evaluate \(\Gamma(5/2)\).</b> \[\Gamma\!\left(\tfrac52\right)=\tfrac32\Gamma\!\left(\tfrac32\right)=\tfrac32\cdot\tfrac12\sqrt{\pi}=\frac{3\sqrt{\pi}}{4}\]</div>
+  <div class="step"><b>Step 5: Evaluate \(\Gamma(3)\) and \(\Gamma(11/2)\).</b> \[\Gamma(3)=2!=2\]
+    \[\Gamma\!\left(\tfrac{11}2\right)=\tfrac92\cdot\tfrac72\cdot\tfrac52\cdot\tfrac32\cdot\tfrac12\sqrt{\pi}=\frac{945\sqrt{\pi}}{32}\]</div>
+  <div class="step"><b>Step 6: Substitute and simplify.</b>
+    \[I=\frac{\frac{3\sqrt{\pi}}{4}\cdot 2}{\frac{945\sqrt{\pi}}{32}}=\frac{3\sqrt{\pi}}{2}\cdot\frac{32}{945\sqrt{\pi}}=\frac{96}{1890}\]</div>
+  <div class="step"><b>Answer:</b> \[\boxed{I=\frac{16}{315}}\approx 0.0508\] so the total shielding effect is \(\dfrac{16K}{315}\).</div></div>
+<div class="card"><h3>Try It Yourself</h3><ol>
+  <li>Find \(\int_0^1 x^{1/2}(1-x)\,dx\). (Answer: \(4/15\).)</li>
+  <li>Show that \(S(x)\) is maximum at \(x=3/7\).</li>
+  <li>Evaluate \(\int_0^1 x^{3/2}(1-x)^{2}\,dx\) by expanding \((1-x)^2\) and compare with \(16/315\).</li></ol></div>
+</div>
+</section>
+
+<script>
+const $=id=>document.getElementById(id);
+const typeset=()=>window.MathJax&&MathJax.typesetPromise&&MathJax.typesetPromise();
+const P={l:50,r:20,t:20,b:40,W:560,H:360};
+
+/* shared: build cumulative area table and axes helpers */
+function makeCum(f,N){const c=new Array(N+1).fill(0);for(let i=1;i<=N;i++)c[i]=c[i-1]+(f((i-1)/N)+f(i/N))/2/N;return c;}
+function drawGraphCommon(g,f,t,YMAX,ticks,fmt,colors,xl,yl){
+  const X=x=>P.l+x*(P.W-P.l-P.r),Y=y=>P.H-P.b-y/YMAX*(P.H-P.t-P.b);
+  g.clearRect(0,0,P.W,P.H);
+  g.strokeStyle=colors.ax;g.fillStyle=colors.axt;g.font='12px Arial';g.lineWidth=1;
+  g.beginPath();g.moveTo(X(0),Y(0));g.lineTo(X(1),Y(0));g.moveTo(X(0),Y(0));g.lineTo(X(0),Y(YMAX));g.stroke();
+  for(let i=0;i<=5;i++)g.fillText((i/5).toFixed(1),X(i/5)-8,P.H-P.b+16);
+  for(let k=0;k<=ticks;k++){const y=YMAX*k/ticks;g.fillText(y.toFixed(fmt),8,Y(y)+4);}
+  g.fillText(xl,X(1)-4,P.H-8);g.fillText(yl,8,14);
+  g.fillStyle='rgba(255,213,79,0.45)';g.beginPath();g.moveTo(X(0),Y(0));
+  for(let x=0;x<=t+1e-9;x+=0.005)g.lineTo(X(x),Y(f(x)));
+  g.lineTo(X(t),Y(f(t)));g.lineTo(X(t),Y(0));g.closePath();g.fill();
+  g.strokeStyle=colors.curve;g.lineWidth=3;g.beginPath();
+  for(let x=0;x<=1.0001;x+=0.005){x==0?g.moveTo(X(x),Y(f(x))):g.lineTo(X(x),Y(f(x)));}
+  g.stroke();
+  const px=X(t),py=Y(f(t)),gr=g.createRadialGradient(px,py,1,px,py,16);
+  gr.addColorStop(0,'#fff');gr.addColorStop(1,'rgba(120,200,255,0)');
+  g.fillStyle=gr;g.beginPath();g.arc(px,py,16,0,7);g.fill();
+  g.setLineDash([4,4]);g.strokeStyle='#9cf';g.lineWidth=1;
+  g.beginPath();g.moveTo(px,py);g.lineTo(px,Y(0));g.stroke();g.setLineDash([]);
+}
+/* shared: play/reset controls; returns state accessor */
+function controls(pre,labels,onTick){
+  const S={t:0,playing:false,last:null};
+  $(pre+'-play').onclick=()=>{if(S.t>=1)S.t=0;S.playing=!S.playing;$(pre+'-play').textContent=S.playing?'⏸ Pause':labels[0];};
+  $(pre+'-reset').onclick=()=>{S.t=0;S.playing=false;$(pre+'-play').textContent=labels[0];};
+  (function loop(now){
+    if(S.last===null)S.last=now;const dt=(now-S.last)/1000;S.last=now;
+    if(S.playing){S.t+=dt*0.12*$(pre+'-speed').value;
+      if(S.t>=1){S.t=1;S.playing=false;$(pre+'-play').textContent=labels[1];}}
+    onTick(S.t,now);requestAnimationFrame(loop);
+  })(performance.now());
+  return S;
+}
+
+/* ---------- Part 1 ---------- */
+(function(){
+  const f=t=>t*t*Math.pow(1-t,3),TOTAL=1/60,YMAX=0.04,N=1000,cum=makeCum(f,N);
+  const g=$('p1-graph').getContext('2d'),k=$('p1-flask').getContext('2d');
+  const col={ax:'#8a7ac0',axt:'#cdbfff',curve:'#ff7bd5'};
+  function flask(t,time){
+    k.clearRect(0,0,P.W,P.H);
+    const cx=280,top=40,neckW=50,bodyR=120,cy=240,level=Math.min(cum[Math.round(t*N)]/TOTAL,1);
+    const path=()=>{k.beginPath();k.moveTo(cx-neckW/2,top);k.lineTo(cx-neckW/2,150);
+      k.lineTo(cx-bodyR+10,cy+60);k.quadraticCurveTo(cx-bodyR-10,cy+110,cx-60,cy+115);
+      k.lineTo(cx+60,cy+115);k.quadraticCurveTo(cx+bodyR+10,cy+110,cx+bodyR-10,cy+60);
+      k.lineTo(cx+neckW/2,150);k.lineTo(cx+neckW/2,top);};
+    const bottom=cy+115,liquidTop=bottom-level*(bottom-100);
+    k.save();path();k.clip();
+    k.fillStyle=`hsl(${280-level*100},80%,55%)`;
+    k.beginPath();k.moveTo(0,bottom+5);
+    for(let x=0;x<=560;x+=10)k.lineTo(x,liquidTop+Math.sin(x/20+time/300)*4);
+    k.lineTo(560,bottom+5);k.fill();
+    for(let i=0;i<10;i++){
+      const bx=cx-60+((i*37)%120),by=bottom-((time/20*(1+i%3)+i*40)%Math.max(bottom-liquidTop,1));
+      k.fillStyle='rgba(255,255,255,0.5)';k.beginPath();k.arc(bx,by,3+i%3,0,7);k.fill();
+    }
+    k.restore();path();k.strokeStyle='#d9c8ff';k.lineWidth=4;k.stroke();
+    k.fillStyle='#ffd54f';k.font='bold 16px Arial';
+    k.fillText('Potion: '+(level*100).toFixed(1)+'% full',cx+135,200);
+    k.fillText('★',60+Math.sin(time/400)*10,60);k.fillText('✦',480,90+Math.cos(time/300)*8);
+  }
+  controls('p1',['▶ Brew','▶ Brew again'],(t,now)=>{
+    drawGraphCommon(g,f,t,YMAX,4,2,col,'t','E(t)/K');flask(t,now);
+    $('p1-readout').innerHTML='t = <b>'+t.toFixed(2)+'</b> | E(t)/K = <b>'+f(t).toFixed(4)+'</b> | area so far = <b>'+cum[Math.round(t*N)].toFixed(5)+'</b> | target B(3,4) = 1/60 = <b>'+TOTAL.toFixed(5)+'</b>';
+  });
+})();
+
+/* ---------- Part 2 ---------- */
+(function(){
+  const f=x=>Math.pow(x,1.5)*(1-x)*(1-x),TOTAL=16/315,YMAX=0.1,N=1000,cum=makeCum(f,N);
+  const g=$('p2-graph').getContext('2d'),c=$('p2-castle').getContext('2d');
+  const col={ax:'#7fa6d0',axt:'#bcd8f5',curve:'#4fd8ff'};
+  function castle(t,time){
+    c.clearRect(0,0,P.W,P.H);
+    const cx=280,gy=300,R=250;
+    c.fillStyle='#fff';
+    for(let i=0;i<40;i++){c.globalAlpha=0.4+0.4*Math.sin(time/500+i);c.fillRect((i*97)%560,(i*53)%180,2,2);}
+    c.globalAlpha=1;
+    const rings=Math.round(t*60);
+    for(let i=1;i<=rings;i++){
+      const x=i/60,r=40+x*(R-40);
+      c.strokeStyle=`rgba(80,${180+Math.round(60*x)},255,${Math.min(1,f(x)/YMAX*1.6)+0.05})`;
+      c.lineWidth=4;c.beginPath();c.arc(cx,gy,r*0.95,Math.PI,2*Math.PI);c.stroke();
+    }
+    if(t>0&&t<1){c.strokeStyle='#fff';c.lineWidth=2;c.beginPath();c.arc(cx,gy,(40+t*(R-40))*0.95,Math.PI,2*Math.PI);c.stroke();}
+    c.fillStyle='#16301f';c.fillRect(0,gy,560,60);
+    c.fillStyle='#6b6f86';c.fillRect(cx-45,gy-60,90,60);c.fillRect(cx-60,gy-85,25,85);c.fillRect(cx+35,gy-85,25,85);
+    c.fillStyle='#c0392b';
+    [cx-60,cx+35].forEach(x=>{c.beginPath();c.moveTo(x-3,gy-85);c.lineTo(x+12,gy-110);c.lineTo(x+28,gy-85);c.fill();});
+    c.fillStyle='#ffd54f';c.fillRect(cx-8,gy-30,16,30);c.fillRect(cx-52,gy-70,8,12);c.fillRect(cx+43,gy-70,8,12);
+    c.fillStyle='#8e44ad';c.beginPath();c.moveTo(cx+110,gy);c.lineTo(cx+120,gy-40);c.lineTo(cx+130,gy);c.fill();
+    c.beginPath();c.moveTo(cx+113,gy-40);c.lineTo(cx+120,gy-62);c.lineTo(cx+127,gy-40);c.fill();
+    c.strokeStyle='#cda';c.lineWidth=2;c.beginPath();c.moveTo(cx+132,gy);c.lineTo(cx+136,gy-50);c.stroke();
+    c.fillStyle='#ffd54f';c.beginPath();c.arc(cx+136,gy-54,4+Math.sin(time/150),0,7);c.fill();
+  }
+  controls('p2',['▶ Cast Shield','▶ Cast again'],(t,now)=>{
+    drawGraphCommon(g,f,t,YMAX,5,2,col,'x','S(x)/K');castle(t,now);
+    const a=cum[Math.round(t*N)];
+    $('p2-pct').textContent=(a/TOTAL*100).toFixed(1)+'%';
+    $('p2-fill').style.width=(a/TOTAL*100)+'%';
+    $('p2-readout').innerHTML='x = <b>'+t.toFixed(2)+'</b> | S(x)/K = <b>'+f(t).toFixed(4)+'</b> | area so far = <b>'+a.toFixed(5)+'</b> | target B(5/2, 3) = 16/315 = <b>'+TOTAL.toFixed(5)+'</b>';
+  });
+})();
+
+/* ---------- Step reveal (both parts) ---------- */
+document.querySelectorAll('.steps').forEach(box=>{
+  const steps=[...box.querySelectorAll('.step')];let s=0;
+  box.querySelector('.next').onclick=()=>{if(s<steps.length){steps[s++].classList.add('show');typeset();}};
+  box.querySelector('.all').onclick=()=>{steps.forEach(e=>e.classList.add('show'));s=steps.length;typeset();};
+  box.querySelector('.hide').onclick=()=>{steps.forEach(e=>e.classList.remove('show'));s=0;};
+});
+</script>
+</body>
+</html>
